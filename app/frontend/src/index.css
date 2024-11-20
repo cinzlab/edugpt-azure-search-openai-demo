@@ -30,6 +30,7 @@ body {
     height: 100%;
     --primary-colour: #1a3d21;
     --feedback-button: black;
+    --feedback-button-text: white;
     --disclaimer: #f5dfe3;
     --user-chat-bubble: #eaf5f7;
     --background: white;

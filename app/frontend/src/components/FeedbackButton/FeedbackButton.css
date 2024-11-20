@@ -1,5 +1,6 @@
 #FeedbackButton {
     background-color: var(--feedback-button);
     border-radius: 0.5rem;
-    border-color: var(--feedback-button);
+    border-color: var(--background);
+    color: var(--feedback-button-text);
 }
