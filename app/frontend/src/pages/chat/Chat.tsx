@@ -452,7 +452,7 @@ const Chat = () => {
                     <div className={styles.chatInput}>
                         <QuestionInput
                             clearOnSend
-                            placeholder="Type a new question (e.g. What R&D funding is available for New Zealand businesses?)"
+                            placeholder="Type a new query (e.g. I want to easily create targeted lesson plans which help a distinct group of learners extend their thinking)"
                             disabled={isLoading}
                             onSend={question => handleCaptchaOnClick(question)}
                             showSpeechInput={showSpeechInput}
