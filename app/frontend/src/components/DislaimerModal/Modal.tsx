@@ -21,7 +21,7 @@ export const DisclaimerModal: React.FC = () => {
         <Dialog open={open} onOpenChange={(event, data) => setOpen(data.open)} modalType="alert">
             <DialogSurface id="my-dialog-surface" className="dialog-surface">
                 <DialogBody id="my-dialog-body">
-                    <DialogTitle id="custom-dialog-title">EduGPT beta</DialogTitle>
+                    <DialogTitle id="custom-dialog-title">EduGPT Beta</DialogTitle>
                     <DialogContent id="custom-dialog-content">
                         <p>
                             <b>IMPORTANT TERMS OF USE FOR EDUGPT</b>
@@ -29,7 +29,7 @@ export const DisclaimerModal: React.FC = () => {
                         <p>
                             <b>16 October 2024</b>
                         </p>
-                        <p>Callaghan Innovation (we, us) have developed the EduGPT beta to facilitate easier access to government-provided information.</p>
+                        <p>Callaghan Innovation (we, us) have developed the EduGPT Beta to facilitate easier access to government-provided information.</p>
                         <p>
                             EduGPT is available to you for free. The information that EduGPT draws from is limited to selected information from the Ministry of
                             Education Curriculum (Tāhūrangi) web site. We do not verify the accuracy of the content on that website. It is important to note
