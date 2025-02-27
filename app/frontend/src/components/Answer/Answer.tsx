@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Stack, IconButton, Text, Icon } from "@fluentui/react";
+import { useMemo, useState, useRef } from "react";
+import { Stack, IconButton, Text, Icon, TooltipHost } from "@fluentui/react";
 import DOMPurify from "dompurify";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -45,9 +45,25 @@ export const Answer = ({
     const messageContent = answer.message.content;
 
     const [isCitationsOpen, setIsCitationsOpen] = useState(false);
+    const [isCopied, setIsCopied] = useState(false);
+    const copyTooltipId = useRef(`copy-tooltip-${index}`).current;
 
     const toggleCitations = () => {
         setIsCitationsOpen(!isCitationsOpen);
+    };
+
+    const copyAnswerToClipboard = () => {
+        // Get plain text from the answer content
+        const textToCopy = messageContent;
+        navigator.clipboard
+            .writeText(textToCopy)
+            .then(() => {
+                setIsCopied(true);
+                setTimeout(() => setIsCopied(false), 2000);
+            })
+            .catch(err => {
+                console.error("Failed to copy text: ", err);
+            });
     };
 
     const parsedAnswer = useMemo(() => parseAnswerToHtml(messageContent, isStreaming, onCitationClicked), [answer]);
@@ -58,12 +74,24 @@ export const Answer = ({
             <Stack.Item>
                 <Stack horizontal horizontalAlign="space-between">
                     <AnswerIcon />
-                    <div>
-                        {showSpeechOutputAzure && (
-                            <SpeechOutputAzure answer={sanitizedAnswerHtml} index={index} speechConfig={speechConfig} isStreaming={isStreaming} />
-                        )}
-                        {showSpeechOutputBrowser && <SpeechOutputBrowser answer={sanitizedAnswerHtml} />}
-                    </div>
+                    <Stack horizontal>
+                        <TooltipHost id={copyTooltipId} content={isCopied ? "Copied!" : "Copy to clipboard"} calloutProps={{ gapSpace: 0 }}>
+                            <IconButton
+                                iconProps={{ iconName: isCopied ? "CheckMark" : "Copy" }}
+                                onClick={copyAnswerToClipboard}
+                                aria-label="Copy answer"
+                                styles={{
+                                    root: { marginRight: "8px" }
+                                }}
+                            />
+                        </TooltipHost>
+                        <div>
+                            {showSpeechOutputAzure && (
+                                <SpeechOutputAzure answer={sanitizedAnswerHtml} index={index} speechConfig={speechConfig} isStreaming={isStreaming} />
+                            )}
+                            {showSpeechOutputBrowser && <SpeechOutputBrowser answer={sanitizedAnswerHtml} />}
+                        </div>
+                    </Stack>
                 </Stack>
             </Stack.Item>
 
