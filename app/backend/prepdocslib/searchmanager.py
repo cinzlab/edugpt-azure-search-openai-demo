@@ -100,6 +100,12 @@ class SearchManager:
                 ),
                 SimpleField(name="category", type="Edm.String", filterable=True, facetable=True),
                 SimpleField(
+                    name="title",
+                    type="Edm.String",
+                    filterable=True,
+                    facetable=True,
+                ),
+                SimpleField(
                     name="sourcepage",
                     type="Edm.String",
                     filterable=True,
@@ -188,6 +194,7 @@ class SearchManager:
             else:
                 logger.info("Search index %s already exists", self.search_info.index_name)
                 index_definition = await search_index_client.get_index(self.search_info.index_name)
+                update_index = False
                 if not any(field.name == "storageUrl" for field in index_definition.fields):
                     logger.info("Adding storageUrl field to index %s", self.search_info.index_name)
                     index_definition.fields.append(
@@ -198,6 +205,21 @@ class SearchManager:
                             facetable=False,
                         ),
                     )
+                    update_index = True
+
+                if not any(field.name == "title" for field in index_definition.fields):
+                    logger.info("Adding title field to index %s", self.search_info.index_name)
+                    index_definition.fields.append(
+                        SimpleField(
+                            name="title",
+                            type="Edm.String",
+                            filterable=True,
+                            facetable=True,
+                        ),
+                    )
+                    update_index = True
+
+                if update_index:
                     await search_index_client.create_or_update_index(index_definition)
 
     async def update_content(
@@ -213,6 +235,7 @@ class SearchManager:
                         "id": f"{section.content.filename_to_id()}-page-{section_index + batch_index * MAX_BATCH_SIZE}",
                         "content": section.split_page.text,
                         "category": section.category,
+                        "title": section.content.filename(),
                         "sourcepage": (
                             BlobManager.blob_image_name_from_file_page(
                                 filename=section.content.filename(),

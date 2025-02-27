@@ -156,11 +156,22 @@ class IntegratedVectorizerStrategy(Strategy):
             data_deletion_detection_policy=NativeBlobSoftDeleteDeletionDetectionPolicy(),
         )
 
-        await ds_client.create_or_update_data_source_connection(data_source_connection)
-        logger.info("Search indexer data source connection updated.")
+        try:
+            await ds_client.create_or_update_data_source_connection(data_source_connection)
+            logger.info("Search indexer data source connection updated.")
+        except Exception as e:
+            # If there's a conflict, log it but continue
+            logger.info(f"Error updating data source connection: {str(e)}")
+            logger.info("Continuing with existing data source connection.")
 
         embedding_skillset = await self.create_embedding_skill(self.search_info.index_name)
-        await ds_client.create_or_update_skillset(embedding_skillset)
+        try:
+            await ds_client.create_or_update_skillset(embedding_skillset)
+            logger.info("Search indexer skillset updated.")
+        except Exception as e:
+            # If there's an error, log it but continue
+            logger.info(f"Error updating skillset: {str(e)}")
+            logger.info("Continuing with existing skillset.")
         await ds_client.close()
 
     async def run(self):
@@ -193,12 +204,18 @@ class IntegratedVectorizerStrategy(Strategy):
         )
 
         indexer_client = self.search_info.create_search_indexer_client()
-        indexer_result = await indexer_client.create_or_update_indexer(indexer)
+        try:
+            indexer_result = await indexer_client.create_or_update_indexer(indexer)
+            logger.info(f"Search indexer {indexer_result.name} updated.")
 
-        # Run the indexer
-        await indexer_client.run_indexer(indexer_name)
-        await indexer_client.close()
-
-        logger.info(
-            f"Successfully created index, indexer: {indexer_result.name}, and skillset. Please navigate to search service in Azure Portal to view the status of the indexer."
-        )
+            # Run the indexer
+            await indexer_client.run_indexer(indexer_name)
+            logger.info(
+                f"Successfully ran indexer: {indexer_name}. Please navigate to search service in Azure Portal to view the status of the indexer."
+            )
+        except Exception as e:
+            # If there's an error, log it but continue
+            logger.info(f"Error updating or running indexer: {str(e)}")
+            logger.info("Please check the search service in Azure Portal for more details.")
+        finally:
+            await indexer_client.close()
